@@ -29,8 +29,10 @@ jobs:
           touch "${BODY_FILE}"
           TAG="$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))"
           if [ $? -eq 0 ]; then
+            echo "Tag: ${TAG}"
             printf "# Changelog\n" >> body.md
             printf "$(git log ${TAG}..HEAD --oneline --decorate=no)\n" >> body.md
+            echo "Commits: $(git log ${TAG}..HEAD --oneline --decorate=no)"
           fi
           echo ::set-output name=body_file::${BODY_FILE}
       - name: Create Release
