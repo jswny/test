@@ -30,7 +30,7 @@ jobs:
           TAG="$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))"
           if [ $? -eq 0 ]; then
             printf "# Changelog\n" >> body.md
-            printf "$(git log ${TAG}..HEAD --oneline --decorate=no)" >> body.md
+            printf "$(git log ${TAG}..HEAD --oneline --decorate=no)\n" >> body.md
           fi
           echo ::set-output name=body_file::${BODY_FILE}
       - name: Create Release
