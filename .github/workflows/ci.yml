@@ -16,4 +16,31 @@ jobs:
           commit-message: Bump {{formulaName}} formula to {{version}}
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prep
+        id: prep
+        run: |
+          BODY_FILE='body.md'
+          touch "${BODY_FILE}"
+          TAG="$(git describe --tags --abbrev=0)"
+          if [ $? -eq 0 ]; then
+            printf "# Changelog" >> body.md
+            printf "git log ${TAG}..HEAD --oneline --decorate=no" >> body.md
+          fi
+          echo ::set-output name=body_file::${BODY_FILE}
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body_path: ${{ steps.prep.outputs.body_file }}
+          draft: false
+          prerelease: false
 
