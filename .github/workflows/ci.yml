@@ -2,7 +2,7 @@ on: [push]
 
 jobs:
   notify:
-    name: Create Release
+    name: Notify
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
