@@ -1,50 +1,17 @@
-on:
-  push:
-    tags: 'v*'
+on: [push]
 
 jobs:
-  homebrew:
-    name: Bump Homebrew formula
+  run:
+    name: Run Action
     runs-on: ubuntu-latest
-    steps:
-      - uses: mislav/bump-homebrew-formula-action@v1
-        with:
-          formula-name: sad
-          homebrew-tap: jswny/homebrew-test
-          base-branch: master
-          download-url: https://github.com/jswny/sad/archive/v3.0.1.tar.gz
-          commit-message: Bump {{formulaName}} formula to {{version}}
-        env:
-          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
-  release:
-    name: Create Release
-    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Run
+        id: run
+        uses: ./
         with:
-          fetch-depth: 0
-      - name: Prep
-        id: prep
-        run: |
-          BODY_FILE='body.md'
-          touch "${BODY_FILE}"
-          TAG="$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))"
-          if [ $? -eq 0 ]; then
-            echo "Tag: ${TAG}"
-            printf "# Changelog\n" >> body.md
-            printf "$(git log ${TAG}..HEAD --oneline --decorate=no)\n" >> body.md
-            echo "Commits: $(git log ${TAG}..HEAD --oneline --decorate=no)"
-          fi
-          echo ::set-output name=body_file::${BODY_FILE}
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          body_path: ${{ steps.prep.outputs.body_file }}
-          draft: false
-          prerelease: false
-
+          who-to-greet: "Mona the Octocat"
+      - name: Get Time
+        run: echo "The time was ${{ steps.run.outputs.time }}"
